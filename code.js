@@ -5,7 +5,7 @@ if (!PIXI.utils.isWebGLSupported()) {
 let socialDistancing = false;
 let quarantining = false;
 var timeIncrement=3;
-function Person(condition, x, y, infect, infectedTime) {
+function Person(condition, x, y, infect, infectedTime,x1,x2,x3,x4,x5) {
     this.condition = condition;
     this.x = x;
     this.y = y;
@@ -16,6 +16,11 @@ function Person(condition, x, y, infect, infectedTime) {
     this.quarantined = false;
     this.symptomTime = 0;
     this.alive = true;
+    this.sprite1=new PIXI.Sprite(x1);
+    this.sprite2=new PIXI.Sprite(x2);
+    this.sprite3=new PIXI.Sprite(x3);
+    this.sprite4=new PIXI.Sprite(x4);
+    this.sprite5=new PIXI.Sprite(x5);
 }
 Person.prototype.progress = function (deathRate, moveTime, morgueX, morgueY, hospitalX, hospitalY, centerX, centerY, hospitalFull, quarantine) {
     if (this.condition == 1) {
@@ -157,27 +162,33 @@ Person.prototype.move = function (speed, bX, bY, bW, bH) {
         }
     }
 }
-Person.prototype.create = function (g, size) {
+Person.prototype.create = function (g) {
     if (this.condition == 0) {
-        g.beginFill(0x0000FF);
+        this.sprite1.x=this.x-3;
+        this.sprite1.y=this.y-3;
+        app.stage.addChild(this.sprite1);
     } else if (this.condition == 1) {
         if (!this.quarantined) {
-            g.lineStyle(1, 0xFF0000, 1);
-            g.drawCircle(this.x, this.y, this.infect);
-            g.beginFill(0xFF0000);
+            this.sprite2.x=this.x-this.infect;
+            this.sprite2.y=this.y-this.infect;
+            app.stage.addChild(this.sprite2);
         } else {
-            g.beginFill(0xFF5000);
+            this.sprite3.x=this.x-3;
+            this.sprite3.y=this.y-3;
+            app.stage.addChild(this.sprite3);
         }
     } else if (this.condition == 2) {
         if (this.alive) {
-            g.beginFill(0xFF00FF);
+            this.sprite4.x=this.x-3;
+            this.sprite4.y=this.y-3;
+            app.stage.addChild(this.sprite4);
         } else {
-            g.beginFill(0x000000);
+            this.sprite5.x=this.x-3;
+            this.sprite5.y=this.y-3;
+            app.stage.addChild(this.sprite5);
         }
     }
-    g.lineStyle(1, 0x000000, 0);
-    g.drawCircle(this.x, this.y, size);
-    g.endFill();
+    g.lineStyle(0,0x000000,0);
 }
 Person.prototype.getDistance = function (p) {
     return this.mag(p.x - this.x, p.y - this.y);
@@ -199,7 +210,7 @@ Person.prototype.spread = function (p, symptomRate) {
     }
 }
 function Community(x, y, w, h, morgueX, morgueY, hospitalX, hospitalY, graphX, graphY, graphW, graphH, size, speed, infect, infectedTime, doSocialDistance, startSocialDistance, socialDistance, quarantine, startQuarantine, moveTime, hospitalCapacity, deathRate, symptomRate) {
-    this.infect = infect;
+    this.infect = parseInt(infect);
     this.speed = speed;
     this.size = size;
     this.infectedTime = infectedTime;
@@ -207,10 +218,47 @@ function Community(x, y, w, h, morgueX, morgueY, hospitalX, hospitalY, graphX, g
     this.y = y;
     this.w = w;
     this.h = h;
+    const p=new PIXI.Graphics();
+    p.beginFill(0x0000FF);
+    p.lineStyle(1, 0x000000, 0);
+    p.drawCircle(3,3,3);
+    p.endFill();
+    const x1=PIXI.RenderTexture.create(6,6);
+    app.renderer.render(p,x1);
+    p.clear();
+    p.beginFill(0xFF0000);
+    //p.lineStyle(1, 0x000000, 0);
+    p.drawCircle(this.infect,this.infect,3.0);
+    p.endFill();
+    p.lineStyle(1, 0xFF0000, 1);
+    p.drawCircle(this.infect,this.infect,this.infect);
+    const x2=PIXI.RenderTexture.create(this.infect*2,this.infect*2);
+    app.renderer.render(p,x2);
+    p.clear();
+    p.beginFill(0xFF5000);
+    p.lineStyle(1, 0x000000, 0);
+    p.drawCircle(3,3,3);
+    p.endFill();
+    const x3=PIXI.RenderTexture.create(6,6);
+    app.renderer.render(p,x3);
+    p.clear();
+    p.beginFill(0xFF00FF);
+    p.lineStyle(1, 0x000000, 0);
+    p.drawCircle(3,3,3);
+    p.endFill();
+    const x4=PIXI.RenderTexture.create(6,6);
+    app.renderer.render(p,x4);
+    p.clear();
+    p.beginFill(0x000000);
+    p.lineStyle(1, 0x000000, 0);
+    p.drawCircle(3,3,3);
+    p.endFill();
+    const x5=PIXI.RenderTexture.create(6,6);
+    app.renderer.render(p,x5);
     this.p = [];
-    this.p.push(new Person(1, this.x + Math.random() * this.w, this.y + Math.random() * this.h, this.infect, this.infectedTime));
+    this.p.push(new Person(1, this.x + Math.random() * this.w, this.y + Math.random() * this.h, this.infect, this.infectedTime,x1,x2,x3,x4,x5));
     for (let i = 0; i < size - 1; i++) {
-        this.p.push(new Person(0, this.x + Math.random() * this.w, this.y + Math.random() * this.h, this.infect, this.infectedTime));
+        this.p.push(new Person(0, this.x + Math.random() * this.w, this.y + Math.random() * this.h, this.infect, this.infectedTime,x1,x2,x3,x4,x5));
     }
     this.time = 0;
     this.socialDistance = socialDistance;
@@ -241,7 +289,7 @@ Community.prototype.drawMe = function (g, t, t1, t2,t3,t4,t5,t6,t7,t8, size) {
     g.lineStyle(1, 0x000000, 1);
     g.drawRect(this.x, this.y, this.w, this.h);
     for (let i = 0; i < this.p.length; i++) {
-        this.p[i].create(g, size);
+        this.p[i].create(g);
     }
     t.text = Math.floor(Math.floor(this.time*3/24)/7)+" Weeks, "+Math.floor(this.time*3/24)%7+" Days, " +this.time*3%24+ " Hours";
     t.position.set(20, 20);
